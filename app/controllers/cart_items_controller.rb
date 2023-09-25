@@ -1,6 +1,11 @@
 class CartItemsController < ApplicationController
   before_action :authenticate_request, only: [:create]
 
+  def index
+    cart_items = CartItem.where(cart_id: params[:cart_id])
+    render json: cart_items, include: :product
+  end
+
   def create
     user_id = JsonWebToken.decode(request.headers['Authorization'].split(' ')[1])['user_id']
     cart_id = User.find(user_id).cart.id
