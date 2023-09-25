@@ -1,12 +1,16 @@
 class CartItemsController < ApplicationController
-    def create
-      cart_item = CartItem.new(cart_item_params)
-      if cart_item.save
-        render json: cart_item
-      else
-        render json: { errors: cart_item.errors.full_messages }, status: :unprocessable_entity
-      end
+  before_action :authenticate_request, only: [:create]
+
+  def create
+    user_id = JsonWebToken.decode(request.headers['Authorization'].split(' ')[1])['user_id']
+    cart_id = User.find(user_id).cart.id
+    cart_item = CartItem.new(cart_item_params.merge(cart_id: cart_id))
+    if cart_item.save
+      render json: cart_item
+    else
+      render json: { errors: cart_item.errors.full_messages }, status: :unprocessable_entity
     end
+  end
   
     def update
       cart_item = CartItem.find(params[:id])
@@ -24,6 +28,15 @@ class CartItemsController < ApplicationController
     end
   
     private
+
+    def authenticate_request
+      token = request.headers['Authorization'].split(' ')[1]
+      unless token && JsonWebToken.decode(token)
+        render json: { error: 'Unauthorized' }, status: :unauthorized
+      end
+    rescue JWT::DecodeError
+      render json: { error: 'Unauthorized' }, status: :unauthorized
+    end
   
     def cart_item_params
       params.require(:cart_item).permit(:cart_id, :product_id, :quantity)

@@ -13,16 +13,17 @@ class UsersController < ApplicationController
     render json: @user, status: :ok
   end
 
-  # POST /users
-  def create
-    @user = User.new(user_params)
-    if @user.save
-      render json: @user, status: :created
-    else
-      render json: { errors: @user.errors.full_messages },
-             status: :unprocessable_entity
-    end
+# POST /users
+def create
+  @user = User.new(user_params)
+  if @user.save
+    @user.create_cart # Create a cart for the user
+    render json: @user, status: :created
+  else
+    render json: { errors: @user.errors.full_messages },
+           status: :unprocessable_entity
   end
+end
 
   # PUT /users/{username}
   def update
