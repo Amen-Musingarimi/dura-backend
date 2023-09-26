@@ -31,6 +31,12 @@ class CartItemsController < ApplicationController
       cart_item.destroy
       head :no_content
     end
+
+    def destroy_all
+      cart_items = CartItem.where(cart_id: params[:cart_id])
+      cart_items.destroy_all
+      head :no_content
+    end
   
     private
 
