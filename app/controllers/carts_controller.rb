@@ -3,4 +3,5 @@ class CartsController < ApplicationController
       cart = Cart.find(params[:id])
       render json: cart, include: { cart_items: { include: :product } }
     end
+
   end

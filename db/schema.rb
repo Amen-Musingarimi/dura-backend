@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_09_26_142424) do
+ActiveRecord::Schema[7.0].define(version: 2023_09_27_081828) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -74,10 +74,11 @@ ActiveRecord::Schema[7.0].define(version: 2023_09_26_142424) do
 
   create_table "purchase_histories", force: :cascade do |t|
     t.bigint "user_id", null: false
-    t.decimal "total_amount"
-    t.datetime "purchased_at"
+    t.bigint "product_id", null: false
+    t.integer "quantity"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["product_id"], name: "index_purchase_histories_on_product_id"
     t.index ["user_id"], name: "index_purchase_histories_on_user_id"
   end
 
@@ -96,5 +97,6 @@ ActiveRecord::Schema[7.0].define(version: 2023_09_26_142424) do
   add_foreign_key "cart_items", "products"
   add_foreign_key "carts", "users"
   add_foreign_key "products", "active_storage_attachments", column: "image_id"
+  add_foreign_key "purchase_histories", "products"
   add_foreign_key "purchase_histories", "users"
 end
