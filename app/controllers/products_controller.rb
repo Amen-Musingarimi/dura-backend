@@ -10,18 +10,26 @@ class ProductsController < ApplicationController
   end
 
   # POST /products
-def create
-  @product = Product.new(product_params)
-
-  if @product.save
-    # Associate the uploaded image with the product
-    @product.image.attach(params[:product][:image])
-
-    render json: @product, status: :created
-  else
-    render json: @product.errors, status: :unprocessable_entity
+  def create
+    @product = Product.find_by(name: product_params[:name])
+  
+    if @product.nil?
+      # Product does not exist, create a new one
+      @product = Product.new(product_params)
+    else
+      # Product already exists, update it
+      @product.assign_attributes(product_params)
+    end
+  
+    if @product.save
+      # Associate the uploaded image with the product
+      @product.image.attach(params[:product][:image])
+  
+      render json: @product, status: :created
+    else
+      render json: @product.errors, status: :unprocessable_entity
+    end
   end
-end
 
 
   private
