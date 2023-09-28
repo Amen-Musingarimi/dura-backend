@@ -39,31 +39,35 @@ class CartItemsController < ApplicationController
     end
 
     # POST /cart_items/order
-  def order
-    user_id = JsonWebToken.decode(request.headers['Authorization'].split(' ')[1])['user_id']
-    user = User.find(user_id)
-    cart_items = CartItem.where(cart_id: user.cart.id)
-
-    # Group cart_items by product_id
-    grouped_cart_items = cart_items.group_by(&:product_id)
-
-    grouped_cart_items.each do |product_id, items|
-      # Calculate the total quantity for this order
-      total_quantity = items.sum(&:quantity)
-
-      # Create a single purchase history entry for this order
-      PurchaseHistory.create(
-        user: user,
-        product: items.first.product,
-        quantity: total_quantity
-      )
-
-      # Remove the cart_items for this order
-      items.each(&:destroy)
+    def order
+      user_id = JsonWebToken.decode(request.headers['Authorization'].split(' ')[1])['user_id']
+      user = User.find(user_id)
+      cart_items = CartItem.where(cart_id: user.cart.id)
+    
+      # Group cart_items by product_id
+      grouped_cart_items = cart_items.group_by(&:product_id)
+    
+      grouped_cart_items.each do |product_id, items|
+        # Calculate the total quantity for this order
+        total_quantity = items.sum(&:quantity)
+    
+        # Decrease the total_units of the product
+        product = Product.find(product_id)
+        product.update(total_units: product.total_units - total_quantity)
+    
+        # Create a single purchase history entry for this order
+        PurchaseHistory.create(
+          user: user,
+          product: items.first.product,
+          quantity: total_quantity
+        )
+    
+        # Remove the cart_items for this order
+        items.each(&:destroy)
+      end
+    
+      head :no_content
     end
-
-    head :no_content
-  end
   
     private
 
