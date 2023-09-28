@@ -11,7 +11,7 @@ class AuthenticationController < ApplicationController
       render json: { token: token, exp: time.strftime("%m-%d-%Y %H:%M"),
                      user: @user, cart_id: cart_id }, status: :ok
     else
-      render json: { error: 'unauthorized' }, status: :unauthorized
+      render json: { error: @user.errors.full_messages.join(', ') }, status: :unauthorized
     end
   end
 
