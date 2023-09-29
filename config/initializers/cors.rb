@@ -1,6 +1,6 @@
 Rails.application.config.middleware.insert_before 0, Rack::Cors do
   allow do
-    origins 'http://localhost:3001'  # Update this with your frontend URL
+    origins 'https://dura-zim.netlify.app'  # Update this with your frontend URL
 
     resource '*',
       headers: :any,
