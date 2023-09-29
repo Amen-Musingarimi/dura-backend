@@ -9,7 +9,16 @@ class ProductsController < ApplicationController
 
   # POST /products
   def create
-    @product = Product.new(product_params)
+    # Find an existing product by name
+    @product = Product.find_by(name: product_params[:name])
+
+    if @product.nil?
+      # If the product doesn't exist, create a new one
+      @product = Product.new(product_params)
+    else
+      # If the product exists, update its attributes
+      @product.update(product_params)
+    end
     
     if @product.save
       render json: @product, status: :created
